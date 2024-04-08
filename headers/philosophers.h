@@ -20,32 +20,31 @@ typedef enum e_booleen
 	yes = 1
 }	t_booleen;
 
-
-typedef struct	s_mutex
+typedef struct s_data
 {
-	pthread_mutex_t mutex;
-}	t_mutex;
+	int				nb_fork;
+	int				nb_philo;
+	int				number_of_times_each_philosopher_must_eat;
+	long			time_to_die;
+	long			time_to_eat;
+	long			time_to_sleep;
+	pthread_mutex_t dead_mutex;
+	pthread_mutex_t write_mutex;
+	pthread_mutex_t eat_mutex;
+	pthread_mutex_t sleep_mutex;
+	pthread_mutex_t think_mutex;
+	t_booleen		dead;
+}	t_data;
 
 typedef struct s_philo
 {
-	t_booleen		*eat;
-	t_booleen		*sleep;
-	t_booleen		*think;
-	t_booleen		*dead;
-	t_booleen		*fork;
+	int				i;
+	t_booleen		eat;
+	t_booleen		sleep;
+	t_booleen		think;
+	int				forks;
+	t_data			*data;
 }	t_philo;
 
-typedef struct s_data
-{
-	int		*i;
-	int		*nb_philo;
-	int		*nb_fork;
-	long	time_to_die;
-	long	time_to_eat;
-	long	time_to_sleep;
-	int		number_of_times_each_philosopher_must_eat;
-	t_philo	*philo;
-	t_mutex	*mutex;
-}	t_data;
 
 #endif
