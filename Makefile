@@ -6,7 +6,7 @@
 #    By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/25 16:57:21 by gchamore          #+#    #+#              #
-#    Updated: 2024/04/03 14:53:08 by gchamore         ###   ########.fr        #
+#    Updated: 2024/04/09 11:11:35 by gchamore         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ CFLAGS = -Werror -Wall -Wextra -g3 -D_REENTRANT -I./headers/
 
 RM = rm -rf
 
-SRCS = 	srcs/philosophers.c srcs/error.c srcs/init.c srcs/brain.c srcs/utils.c
+SRCS = 	srcs/philosophers.c
 
 OBJ_DIR = objs
 

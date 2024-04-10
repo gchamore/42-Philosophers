@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 10:19:18 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/08 18:17:01 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/10 17:01:45 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,10 @@ void	ft_parsing_1(int ac, char **av)
 	ft_parsing_2(av);
 }
 
+long long	time_diff(long long past, long long pres)
+{
+	return (pres - past);
+}
 
 long long	timestamp(void)
 {
@@ -64,6 +68,19 @@ long long	timestamp(void)
 
 	gettimeofday(&tv, NULL);
 	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
+void	ft_free_forks(t_forks *forks, t_data *data)
+{
+	int i;
+
+	i = 0;
+	while (i < data->nb_philo)
+	{
+		free(forks[i].id);
+		free(forks[i].is_used);
+    }
+	free(forks);
 }
 
 void	ft_usleep(int ms)
@@ -74,73 +91,110 @@ void	ft_usleep(int ms)
 	while (timestamp() - time < ms)
 		usleep(ms / 10);
 }
-void	print(t_philo *philo, char *str)
-{
-	long int	time;
-
-	pthread_mutex_lock(&(philo->data->print));
-	time = timestamp() - philo->info->t_start;
-	if (!philo->info->stop && time >= 0 \
-			&& time <= INT_MAX && !is_dead(philo, 0))
-		printf("%lld %d %s", timestamp() - philo->info->t_start, philo->n, str);
-	pthread_mutex_unlock(&(philo->info->print));
-}
 
 // ROUTINE PHILOSOPHERS
 
 void *philo_routine(void *arg)
 {
 	t_philo *philo = (t_philo *)arg;
-	// pthread_mutex_lock(&philo->data->write_mutex);
-    printf("PHILO -> %d\n eat = %d\n forks = %d \n nb_fork = %d\n\n", philo->i + 1, philo->eat, philo->forks, philo->data->nb_fork);
-	// pthread_mutex_unlock(&philo->data->write_mutex);
-	if (philo->eat == yes && philo->forks == 2)
+	int	id_philo = philo->id;
+	printf("PHILO %d\n", id_philo + 1);
+	if (philo->data->dead == no)
 	{
-		pthread_mutex_lock(&philo->data->eat_mutex);
-		print(philo, " is eating\n");
-		pthread_mutex_unlock(&philo->data->eat_mutex);
-		usleep(philo->data->time_to_eat);
-		philo->forks = 0;
-		philo->data->nb_fork += 2;
-		philo->eat = no;
-		philo->sleep = yes;
-		philo->data->number_of_times_each_philosopher_must_eat--;
-		if (philo->sleep == yes && philo->forks == 0)
+		// pthread_mutex_lock(&philo->data->write_mutex);
+		// printf("PHILO = %d\n forks = %d \n nb_fork = %d\n\n", philo->id + 1, philo->forks, philo->data->nb_fork);
+		// pthread_mutex_unlock(&philo->data->write_mutex);
+		if (philo->eat == yes && philo->is_using_forks == 2)
 		{
-			pthread_mutex_lock(&philo->data->sleep_mutex);
-			printf("PHILO %d is sleeping\n", philo->i + 1);
-			pthread_mutex_unlock(&philo->data->sleep_mutex);
-			usleep(philo->data->time_to_sleep);
-			philo->sleep = no;
-			philo->think = yes;
+			printf("PHILO %d is eating\n", philo->id + 1);
+			// usleep(philo->data->time_to_eat);
+			// philo->last_meal_time = timestamp();
+			// pthread_mutex_lock(&philo->forks->is_used_mutex);
+			if (philo->id % 2 == 0)
+			{
+				if ( philo->id == 0)
+				{
+					*(philo->forks[philo->id].is_used) = no;
+					*(philo->forks[philo->data->nb_philo - 1].is_used) = no;
+				}
+				else
+				{
+					*(philo->forks[philo->id].is_used) = no;
+					*(philo->forks[philo->id - 1].is_used) = no;
+				}
+			}
+			else
+			{
+				*(philo->forks[philo->id].is_used) = no;
+				*(philo->forks[philo->id - 1].is_used) = no;
+			}
+			// pthread_mutex_unlock(&philo->forks->is_used_mutex);
+			philo->is_using_forks = 0;
+			philo->eat = no;
+			philo->sleep = yes;
+			philo->data->number_of_times_each_philosopher_must_eat--;
+			if (philo->sleep == yes && philo->is_using_forks == 0)
+			{
+				printf("PHILO %d is sleeping\n", id_philo + 1);
+				// usleep(philo->data->time_to_sleep);
+				philo->sleep = no;
+				philo->think = yes;
+			}
 		}
+		else if (philo->think == yes && philo->is_using_forks == 0)
+		{
+			printf("PHILO %d is thinking\n", id_philo + 1);
+			// pthread_mutex_lock(&philo->forks->is_used_mutex);
+			if (id_philo == 0)
+			{
+				if ((philo->forks[id_philo].is_used == no) && (philo->forks[philo->data->nb_philo - 1].is_used == no))
+				{
+					philo[id_philo].is_using_forks = 2;
+					philo[id_philo].eat = yes;
+					philo[id_philo].sleep = no;
+					philo[id_philo].think = no;
+					*(philo->forks[id_philo].is_used) = yes;
+					*(philo->forks[philo->data->nb_philo - 1].is_used) = yes;
+				}
+			}
+			else if (id_philo > 0)
+			{
+				if ((philo->forks[id_philo].is_used == no) && (philo->forks[id_philo - 1].is_used == no))
+				{
+					philo[id_philo].is_using_forks = 2;
+					philo[id_philo].eat = yes;
+					philo[id_philo].sleep = no;
+					philo[id_philo].think = no;
+					*(philo->forks[id_philo].is_used) = yes;
+					*(philo->forks[id_philo - 1].is_used) = yes;
+				}
+			}
+			// pthread_mutex_unlock(&philo->forks->is_used_mutex);
+			// if (time_diff(philo->last_meal_time, timestamp()) > philo->data->time_to_die)
+			// {
+			// 	printf("PHILO %d is dead\n", philo->id + 1);
+			// 	philo->data->dead = yes;
+			// 	return (0);
+			// }
+		}
+		printf("HEY\n");
 	}
-	else if (philo->think == yes && philo->forks == 0)
+	return (0);
+}
+
+void	ft_init_forks(t_forks *forks, t_data *data)
+{
+	int i;
+
+	i = 0;
+	while (i < data->nb_philo)
 	{
-		pthread_mutex_lock(&philo->data->think_mutex);
-		printf("PHILO %d is thinking\n", philo->i + 1);
-		pthread_mutex_unlock(&philo->data->think_mutex);
-		philo->eat = no;
-		philo->sleep = no;
-		philo->think = yes;
-		if (philo->data->nb_fork >= 2)
-		{
-			philo->forks = 2;
-			philo->data->nb_fork -= 2;
-			philo->eat = yes;
-			philo->sleep = no;
-			philo->think = no;
-		}
-		else
-		{
-			pthread_mutex_lock(&philo->data->write_mutex);
-			printf("PHILO %d is dead\n", philo->i + 1);
-			pthread_mutex_unlock(&philo->data->write_mutex);
-			philo->data->dead = yes;
-			return (0);
-		}
-	}
-	return 0;
+		forks[i].id = malloc(sizeof(int));
+		forks[i].is_used = malloc(sizeof(t_booleen));
+		*(forks[i].id) = i;
+		*(forks[i].is_used) = no;
+		i++;
+    }
 }
 
 // INIT DATA
@@ -155,48 +209,128 @@ t_data ft_init_data(t_data *data, char **av)
 	data->dead = no;
 	return (*data);
 }
+// void	ft_check_id(t_philo *philo, t_data *data)
+// {
+// 	int i;
 
-t_data	ft_init_philo(t_philo *philo, t_data *data)
+// 	i = 0;
+// 	while (i < data->nb_philo)
+// 	{
+// 		;
+// 		i++;
+// 	}
+// }
+
+// void	ft_check_if_used(t_forks *forks, t_data *data)
+// {
+// 	int i;
+
+// 	i = 0;
+// 	while (i < data->nb_philo)
+// 	{
+// 		printf("forks[%d].is_used = %d\n", i, forks[i].is_used);
+// 		i++;
+// 	}
+// }
+
+void	ft_init_philo(t_philo *philo, t_data *data)
+{
+	int id_philo;
+
+	id_philo = 0;
+	while(id_philo < data->nb_philo)
+	{
+		if(id_philo % 2 == 0)
+		{
+			if (id_philo == 0)
+			{
+				if ((*(philo->forks[id_philo].is_used) == no) && (*(philo->forks[data->nb_philo - 1].is_used) == no))
+				{
+					philo[id_philo].is_using_forks = 2;
+					philo[id_philo].eat = yes;
+					philo[id_philo].sleep = no;
+					philo[id_philo].think = no;
+					*(philo->forks[id_philo].is_used) = yes;
+					*(philo->forks[data->nb_philo - 1].is_used) = yes;
+				}
+			}
+			else
+			{
+				if((*(philo->forks[id_philo].is_used) == no) && (*(philo->forks[id_philo - 1].is_used) == no))
+				{
+					philo[id_philo].is_using_forks = 2;
+					philo[id_philo].eat = yes;
+					philo[id_philo].sleep = no;
+					philo[id_philo].think = no;
+					*(philo->forks[id_philo].is_used) = yes;
+					*(philo->forks[id_philo - 1].is_used) = yes;
+				}
+				else
+				{
+					philo[id_philo].is_using_forks = 0;
+					philo[id_philo].eat = no;
+					philo[id_philo].sleep = no;
+					philo[id_philo].think = yes;
+				}
+			}
+		}
+		else
+		{
+			philo[id_philo].is_using_forks = 0;
+			philo[id_philo].eat = no;
+			philo[id_philo].sleep = no;
+			philo[id_philo].think = yes;
+		}
+		philo[id_philo].id = id_philo;
+		id_philo++;
+	}
+}
+
+
+// gettimeofday(&current_time, NULL);
+//   	printf("seconds : %ld\nmicro seconds : %ld",
+//     	current_time.tv_sec, current_time.tv_usec);
+//MAIN
+
+void	ft_print_philo(t_philo *philo, t_data *data)
 {
 	int i;
 
 	i = 0;
-	
-    while (i < data->nb_philo)
+	while (i < data->nb_philo)
 	{
-		if(i % 2 == 0 && data->nb_fork > 1)
-		{
-			philo[i].forks = 2;
-			philo[i].eat = yes;
-			philo[i].sleep = no;
-			philo[i].think = no;
-			data->nb_fork -= 2;
-		}
+		printf("------------PHILO %d-------------\n", i + 1);
+		if (philo[i].eat == 1)
+			printf("philo %d is eating \n", i + 1);
+		if (philo[i].sleep == 1)
+			printf("philo %d is sleeping \n", i + 1);
+		if (philo[i].think == 1)
+			printf("philo %d is thinking \n", i + 1);
+		if (philo[i].is_using_forks == 2)
+			printf("he can eat he has 2 forks\n");
 		else
-		{
-			philo[i].forks = 0;
-			philo[i].eat = no;
-			philo[i].sleep = no;
-			philo[i].think = yes;
-		}
+			printf("he can't eat he has 0 forks\n");
+		if (*(philo->forks[i].is_used) == 1)
+			printf("philo's fork is USED\n");
+		else if (*(philo->forks[i].is_used) == 0)
+			printf("philo's fork is NOT USED\n");
+		printf("\n");
 		i++;
-    }
-	return (*data);
+	}
 }
 
-//MAIN
 int main(int ac, char **av)
 {
 	int i;
     t_philo	*philo;
 	t_data	data;
-	struct timeval current_time;
+	t_forks	*forks;
 
-	gettimeofday(&current_time, NULL);
-  	printf("seconds : %ld\nmicro seconds : %ld",
-    	current_time.tv_sec, current_time.tv_usec);
+	i = 0;
     ft_parsing_1(ac, av);
 	data = ft_init_data(&data, av);
+	forks = malloc(data.nb_philo * sizeof(t_forks));
+	ft_init_forks(forks, &data);
 	philo = malloc(data.nb_philo * sizeof(t_philo));
 	pthread_t *philo_threads = malloc(data.nb_philo * sizeof(pthread_t));
     if (!philo || !philo_threads)
@@ -204,54 +338,58 @@ int main(int ac, char **av)
         perror("ERROR: memory allocation failed");
         exit(EXIT_FAILURE);
     }
-	data = ft_init_philo(philo, &data);
-		
+	philo->forks = forks;
+	ft_init_philo(philo, &data);
+	printf("------------------------INIT------------------------\n\n");
+	ft_print_philo(philo, &data);
+	printf("----------------------------------------------------\n\n");
+
     // Création des états des philosophes
     // Initialisation du mutex
-    pthread_mutex_init(&data.dead_mutex, NULL);
-	pthread_mutex_init(&data.write_mutex, NULL);
-	pthread_mutex_init(&data.eat_mutex, NULL);
-	pthread_mutex_init(&data.sleep_mutex, NULL);
-	pthread_mutex_init(&data.think_mutex, NULL);
+    pthread_mutex_init(&philo->forks->id_mutex, NULL);
+	pthread_mutex_init(&philo->forks->is_used_mutex, NULL);
+	// pthread_mutex_init(&data.write_mutex, NULL);
+	// pthread_mutex_init(&data.eat_mutex, NULL);
+	// pthread_mutex_init(&data.sleep_mutex, NULL);
+	// pthread_mutex_init(&data.think_mutex, NULL);
 
 	// pthread_mutex_lock(&philo->data->dead_mutex);
-	while (data.dead == no)
-	{
     // Création des threads pour les philosophes
-		i = 0;
-		while (i < data.nb_philo)
+	i = 0;
+	while (i < data.nb_philo)
+	{
+		philo[i].data = &data;
+		if (pthread_create(&philo_threads[i], NULL, philo_routine, &philo[i]) != 0)
 		{
-			philo[i].i = i;
-			philo[i].data = &data;
-			if (pthread_create(&philo_threads[i], NULL, philo_routine, &philo[i]) != 0)
-			{
-				perror("Thread creation error");
-				exit(EXIT_FAILURE);
-			}
-			i++;
+			perror("Thread creation error");
+			exit(EXIT_FAILURE);
 		}
-		usleep(10000);
-		i = 0;
-		// Attente de la fin des threads
-		while (i < data.nb_philo)
-		{
-			if (pthread_join(philo_threads[i], NULL) != 0)
-			{
-				perror("Thread join error");
-				exit(EXIT_FAILURE);
-			}
-			i++;
-		}
+		i++;
 	}
-	// pthread_mutex_unlock(&philo->data->dead_mutex);
+	// usleep(10000);
+	i = 0;
+	printf("111111 ----------- TEST\n\n");
+	// Attente de la fin des threads
+	while (i < data.nb_philo)
+	{
+		if (pthread_join(philo_threads[i], NULL) != 0)
+		{
+			perror("Thread join error");
+			exit(EXIT_FAILURE);
+		}
+		i++;
+	}
+	printf("OOOOOO ----------- TEST\n\n");
     // Affichage des états des philosophes
-    pthread_mutex_destroy(&data.dead_mutex);
-	pthread_mutex_destroy(&data.write_mutex);
-	pthread_mutex_destroy(&data.eat_mutex);
-	pthread_mutex_destroy(&data.sleep_mutex);
-	pthread_mutex_destroy(&data.think_mutex);
+    pthread_mutex_destroy(&philo->forks->id_mutex);
+	pthread_mutex_destroy(&philo->forks->is_used_mutex);
+	// pthread_mutex_destroy(&data.eat_mutex);
+	// pthread_mutex_destroy(&data.sleep_mutex);
+	// pthread_mutex_destroy(&data.think_mutex);
     // Libération de mémoire
+	ft_free_forks(forks, &data);
     free(philo_threads);
 	free(philo);
+	printf("22222222 ----------- TEST\n\n");
     return 0;
 }
