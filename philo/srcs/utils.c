@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/11 13:40:02 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/11 14:10:25 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/11 14:19:26 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@
 // }
 // Destroys all the mutexes
 
-void	destory_all(char *str, t_brain *brain, pthread_mutex_t *forks)
+void	ft_clear(char *str, t_brain *brain, pthread_mutex_t *forks)
 {
 	int	i;
 
@@ -72,9 +72,9 @@ void	destory_all(char *str, t_brain *brain, pthread_mutex_t *forks)
 
 // Improved version of sleep function
 
-int	ft_usleep(size_t milliseconds)
+int	ft_usleep(long long milliseconds)
 {
-	size_t	start;
+	long long	start;
 
 	start = ft_timestamp();
 	while ((ft_timestamp() - start) < milliseconds)
@@ -84,7 +84,7 @@ int	ft_usleep(size_t milliseconds)
 
 // Gets the current time in milliseconds
 
-size_t	ft_timestamp(void)
+long long	ft_timestamp(void)
 {
 	struct timeval	time;
 

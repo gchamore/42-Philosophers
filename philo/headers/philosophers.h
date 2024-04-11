@@ -15,7 +15,6 @@
 # include <sys/time.h>
 # include <limits.h>
 
-# define PHILO_MAX 300
 
 typedef enum e_booleen
 {
@@ -26,7 +25,7 @@ typedef enum e_booleen
 typedef struct s_philo
 {
 	int				*dead;
-	int				eating;
+	t_booleen		eating;
 	int				id;
 	int				meals_eaten;
 	int				num_of_philos;
@@ -37,12 +36,13 @@ typedef struct s_philo
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	pthread_t		thread;
-	size_t			last_meal;
-	size_t			start_time;
-	size_t			time_to_die;
-	size_t			time_to_eat;
-	size_t			time_to_sleep;
+	long long			last_meal;
+	long long			start;
+	long long			time_to_die;
+	long long			time_to_eat;
+	long long			time_to_sleep;
 }					t_philo;
+
 typedef struct s_brain
 {
 	int				dead_flag;
@@ -54,9 +54,9 @@ typedef struct s_brain
 
 
 // Utils
-void		destory_all(char *str, t_brain *brain, pthread_mutex_t *forks);
-int			ft_usleep(size_t milliseconds);
-size_t		ft_timestamp(void);
+void		ft_clear(char *str, t_brain *brain, pthread_mutex_t *forks);
+int			ft_usleep(long long milliseconds);
+long long		ft_timestamp(void);
 
 
 #endif
