@@ -1,6 +1,10 @@
 {
 	"files.associations": {
 		"philosophers.h": "c",
-		"stdio.h": "c"
+		"stdio.h": "c",
+		"limits.h": "c",
+		"pthread.h": "c",
+		"stdbool.h": "c",
+		"stdlib.h": "c"
 	}
 }

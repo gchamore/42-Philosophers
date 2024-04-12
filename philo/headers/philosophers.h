@@ -24,10 +24,10 @@ typedef enum e_booleen
 
 typedef struct s_philo
 {
-	int				*dead;
+	t_booleen		*dead;
 	t_booleen		eating;
 	int				id;
-	int				meals_eaten;
+	int				nb_meals_eat;
 	int				num_of_philos;
 	int				num_times_to_eat;
 	pthread_mutex_t	*dead_mutex;
@@ -36,19 +36,16 @@ typedef struct s_philo
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	pthread_t		thread;
-	long long			last_meal;
-	long long			start;
-	long long			time_to_die;
-	long long			time_to_eat;
-	long long			time_to_sleep;
+	long long		last_meal;
+	long long		start;
+	long long		time_to_die;
+	long long		time_to_eat;
+	long long		time_to_sleep;
 }					t_philo;
 
 typedef struct s_brain
 {
-	int				dead_flag;
-	pthread_mutex_t	dead_mutex;
-	pthread_mutex_t	eat_mutex;
-	pthread_mutex_t	print_mutex;
+	t_booleen		dead_flag;
 	t_philo			*philo;
 }					t_brain;
 
