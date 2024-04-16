@@ -25,11 +25,13 @@ typedef enum e_booleen
 typedef struct s_philo
 {
 	t_booleen		*dead;
+	t_booleen		dead_flag;
 	t_booleen		eating;
 	int				id;
 	int				nb_meals_eat;
 	int				num_of_philos;
 	int				num_times_to_eat;
+	pthread_mutex_t	dead_mutex_flag;
 	pthread_mutex_t	*dead_mutex;
 	pthread_mutex_t	*eat_mutex;
 	pthread_mutex_t	*print_mutex;
@@ -43,15 +45,8 @@ typedef struct s_philo
 	long long		time_to_sleep;
 }					t_philo;
 
-typedef struct s_brain
-{
-	t_booleen		dead_flag;
-	t_philo			*philo;
-}					t_brain;
-
-
 // Utils
-void		ft_clear(char *str, t_brain *brain, pthread_mutex_t *forks);
+void		ft_clear(char *str, t_philo *philo, pthread_mutex_t *forks);
 int			ft_usleep(long long milliseconds);
 long long		ft_timestamp(void);
 

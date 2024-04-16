@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/11 13:40:02 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/11 14:19:26 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/16 15:32:09 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@
 // }
 // Destroys all the mutexes
 
-void	ft_clear(char *str, t_brain *brain, pthread_mutex_t *forks)
+void	ft_clear(char *str, t_philo *philo, pthread_mutex_t *forks)
 {
 	int	i;
 
@@ -60,14 +60,18 @@ void	ft_clear(char *str, t_brain *brain, pthread_mutex_t *forks)
 		write(2, str, ft_strlen(str));
 		write(2, "\n", 1);
 	}
-	pthread_mutex_destroy(&brain->print_mutex);
-	pthread_mutex_destroy(&brain->eat_mutex);
-	pthread_mutex_destroy(&brain->dead_mutex);
-	while (i < brain->philo[0].num_of_philos)
+	pthread_mutex_destroy(&philo->dead_mutex_flag);
+	while (i < philo->num_of_philos)
 	{
+		pthread_mutex_destroy(philo[i].print_mutex);
+        pthread_mutex_destroy(philo[i].dead_mutex);
+        pthread_mutex_destroy(philo[i].eat_mutex);
+        free(philo[i].print_mutex);
+        free(philo[i].eat_mutex);
 		pthread_mutex_destroy(&forks[i]);
 		i++;
 	}
+	exit(1);
 }
 
 // Improved version of sleep function

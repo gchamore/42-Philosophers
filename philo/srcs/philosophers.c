@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 10:19:18 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/12 14:44:33 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/16 17:26:22 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	ft_parsing_2(char **av)
 	}
 	if (ft_atoi(av[1]) > 200)
 	{
-		printf("ERROR there  is more than 200 philosophers\n");
+		printf("Nop on a dit pas plus de 200 philosophers ! (Meme si ca fonctionne avec plus ^^)\n");
 		exit(0);
 	}
 }
@@ -61,21 +61,24 @@ int	someone_is_dead(t_philo *philo)
 {
 	pthread_mutex_lock(philo->dead_mutex);
 	if (*philo->dead == yes)
-		return (pthread_mutex_unlock(philo->dead_mutex), 1);
+	{
+		pthread_mutex_unlock(philo->dead_mutex);
+		return (1);
+	}
 	pthread_mutex_unlock(philo->dead_mutex);
 	return (0);
 }
 
-long long	time_diff(long long past, long long pres)
+long long	time_diff(long long present, long long past)
 {
-	return (pres - past);
+	return (present - past);
 }
 
 void	print_message(char *str, t_philo *philo, int id)
 {
 	long long	time;
 
-	time = time_diff(philo->start, ft_timestamp());
+	time = time_diff(ft_timestamp(), philo->start);
 	pthread_mutex_lock(philo->print_mutex);
 	if (someone_is_dead(philo) == no)
 		printf("%lld %d %s\n", time, id, str);
@@ -97,32 +100,33 @@ void	ft_init_argv(t_philo *philo, char **argv)
 
 // INIT PHILOS
 
-void	ft_init_philos(t_philo *philos, t_brain *brain, pthread_mutex_t *forks, char **argv)
+void	ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv)
 {
 	int	i;
 
 	i = -1;
 	while (++i < ft_atoi(argv[1]))
 	{
-		philos[i].id = i + 1;
-		philos[i].eating = no;
-		philos[i].nb_meals_eat = 0;
-		ft_init_argv(&philos[i], argv);
-		philos[i].start = ft_timestamp();
-		philos[i].last_meal = ft_timestamp();
+		philo[i].id = i + 1;
+		philo[i].eating = no;
+		philo[i].nb_meals_eat = 0;
+		ft_init_argv(&philo[i], argv);
+		philo[i].start = ft_timestamp();
+		philo[i].last_meal = ft_timestamp();
 		// printf("philo[%d].last_meal = %lld\n", i, philos[i].last_meal);
-		philos[i].print_mutex = malloc(sizeof(pthread_mutex_t));
-        philos[i].dead_mutex = malloc(sizeof(pthread_mutex_t));
-        philos[i].eat_mutex = malloc(sizeof(pthread_mutex_t));
-        pthread_mutex_init(philos[i].print_mutex, NULL);
-        pthread_mutex_init(philos[i].dead_mutex, NULL);
-        pthread_mutex_init(philos[i].eat_mutex, NULL);
-		philos[i].dead = &brain->dead_flag;
-		philos[i].left_fork = &forks[i];
+		philo[i].print_mutex = malloc(sizeof(pthread_mutex_t));
+        philo[i].eat_mutex = malloc(sizeof(pthread_mutex_t));
+		philo[i].dead_mutex = &philo->dead_mutex_flag;
+		if (!philo[i].print_mutex || !philo[i].eat_mutex)
+			ft_clear("Malloc error", philo, forks);
+        pthread_mutex_init(philo[i].print_mutex, NULL);
+        pthread_mutex_init(philo[i].eat_mutex, NULL);
+		philo[i].dead = &philo->dead_flag;
+		philo[i].left_fork = &forks[i];
 		if (i == 0)
-			philos[i].right_fork = &forks[philos[i].num_of_philos - 1];
+			philo[i].right_fork = &forks[philo[i].num_of_philos - 1];
 		else
-			philos[i].right_fork = &forks[i - 1];
+			philo[i].right_fork = &forks[i - 1];
 	}
 }
 
@@ -133,19 +137,34 @@ void	*philo_routine(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	if (philo->id % 2 == 0)
-		ft_usleep(50);
 	while (someone_is_dead(philo) == 0)
 	{
-		pthread_mutex_lock(philo->right_fork);
-		print_message("has taken a fork", philo, philo->id);
-		if (philo->num_of_philos == 1)
+		if (philo->id % 2 == 0)
 		{
-			ft_usleep(philo->time_to_die);
-			pthread_mutex_unlock(philo->right_fork);
+			pthread_mutex_lock(philo->left_fork);
+			print_message("has taken a fork", philo, philo->id);
+			if (philo->num_of_philos == 1)
+			{
+				ft_usleep(philo->time_to_die);
+				pthread_mutex_unlock(philo->left_fork);
+				return (arg);
+			}
+			pthread_mutex_lock(philo->right_fork);
+			print_message("has taken a fork", philo, philo->id);
 		}
-		pthread_mutex_lock(philo->left_fork);
-		print_message("has taken a fork", philo, philo->id);
+		else if (philo->id % 2 == 1)
+		{
+			pthread_mutex_lock(philo->right_fork);
+			print_message("has taken a fork", philo, philo->id);
+			if (philo->num_of_philos == 1)
+			{
+				ft_usleep(philo->time_to_die);
+				pthread_mutex_unlock(philo->right_fork);
+				return (arg);
+			}
+			pthread_mutex_lock(philo->left_fork);
+			print_message("has taken a fork", philo, philo->id);
+		}
 		philo->eating = yes;
 		print_message("is eating", philo, philo->id);
 		pthread_mutex_lock(philo->eat_mutex);
@@ -161,6 +180,7 @@ void	*philo_routine(void *arg)
 		print_message("is sleeping", philo, philo->id);
 		ft_usleep(philo->time_to_sleep);
 		print_message("is thinking", philo, philo->id);
+		ft_usleep((philo->time_to_die - philo->time_to_eat - philo->time_to_sleep) / 2);
 		// if (
 		// 	philo->num_times_to_eat != -1
 		// 	&& philo->nb_meals_eat >= philo->num_times_to_eat
@@ -185,9 +205,9 @@ int	philosopher_dead(t_philo *philo, long long time_to_die)
 	return (0);
 }
 
-// Monitor Threads routine
+// Brain Threads routine
 
-void	*monitor_routine(void *arg)
+void	*brain_routine(void *arg)
 {
 	t_philo	*philo;
 	int	i;
@@ -196,8 +216,6 @@ void	*monitor_routine(void *arg)
 	philo = (t_philo *)arg;
 	while (1)
 	{
-		if (philo->num_times_to_eat == -1)
-			break;
 		i = 0;
 		while (i < philo->num_of_philos)
 		{
@@ -207,12 +225,14 @@ void	*monitor_routine(void *arg)
 				pthread_mutex_lock(philo->dead_mutex);
 				*philo->dead = yes;
 				pthread_mutex_unlock(philo->dead_mutex);
-				break;
+				return (arg);
 			}
 			i++;
 		}
 		i = 0;
 		finished_eating = 0;
+		if (philo->num_times_to_eat == -1)
+			continue;
 		while (i < philo->num_of_philos)
 		{
 			pthread_mutex_lock(philo[i].eat_mutex);
@@ -234,7 +254,6 @@ void	*monitor_routine(void *arg)
 
 int main(int ac, char **av)
 {
-	t_brain			brain;
 	t_philo			*philo;
 	pthread_mutex_t	*forks;
 	pthread_t	manager_thread;
@@ -243,43 +262,45 @@ int main(int ac, char **av)
 	ft_parsing_1(ac, av);
 	philo = malloc(sizeof(t_philo) * ft_atoi(av[1]));
 	forks = malloc(sizeof(pthread_mutex_t) * ft_atoi(av[1]));
-	brain.dead_flag = no;
-	brain.philo = philo;
+	if (!philo || !forks)
+		ft_clear("Malloc error", philo, forks);
+	philo->dead_flag = no;
+	
 	i = 0;
 	while (i < ft_atoi(av[1]))
 	{
 		pthread_mutex_init(&forks[i], NULL);
 		i++;
 	}
-	ft_init_philos(philo, &brain, forks, av);
+	pthread_mutex_init(&philo->dead_mutex_flag, NULL);
+	ft_init_philos(philo, forks, av);
 
-	if (pthread_create(&manager_thread, NULL, &monitor_routine, brain.philo) != 0)
-		ft_clear("Thread creation error", &brain, forks);
+	if (pthread_create(&manager_thread, NULL, &brain_routine, philo) != 0)
+		ft_clear("Thread creation error", philo, forks);
 	i = 0;
-	while (i < brain.philo->num_of_philos)
+	while (i < philo->num_of_philos)
 	{
-		if (pthread_create(&brain.philo[i].thread, NULL, &philo_routine,
-				&brain.philo[i]) != 0)
-			ft_clear("Thread creation error", &brain, forks);
+		if (pthread_create(&philo[i].thread, NULL, &philo_routine, &philo[i]) != 0)
+			ft_clear("Thread creation error", philo, forks);
 		i++;
 	}
 	i = 0;
 	if (pthread_join(manager_thread, NULL) != 0)
-		ft_clear("Thread join error", &brain, forks);
-	while (i < brain.philo->num_of_philos)
+		ft_clear("Thread join error", philo, forks);
+	while (i < philo->num_of_philos)
 	{
-		if (pthread_join(brain.philo[i].thread, NULL) != 0)
-			ft_clear("Thread join error", &brain, forks);
+		if (pthread_join(philo[i].thread, NULL) != 0)
+			ft_clear("Thread join error", philo, forks);
 		i++;
 	}
 	i = 0;
-	while (i < brain.philo->num_of_philos)
+	pthread_mutex_destroy(&philo->dead_mutex_flag);
+	while (i < philo->num_of_philos)
 	{
         pthread_mutex_destroy(philo[i].print_mutex);
-        pthread_mutex_destroy(philo[i].dead_mutex);
         pthread_mutex_destroy(philo[i].eat_mutex);
+		pthread_mutex_destroy(&forks[i]);
         free(philo[i].print_mutex);
-        free(philo[i].dead_mutex);
         free(philo[i].eat_mutex);
         i++;
     }
