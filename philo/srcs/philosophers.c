@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 10:19:18 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/16 17:26:22 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/17 17:52:42 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,12 @@ void	ft_parsing_2(char **av)
 {
 	if (ft_atoi(av[1]) == 0 || ft_atoi(av[2]) == 0 || ft_atoi(av[3]) == 0 || ft_atoi(av[4]) == 0)
 	{
-		printf("ERROR one arg is = a 0 you need to put a valid number\n");
+		printf("ERROR one arg is = to 0 you need to put a valid number\n");
 		exit(0);
 	}
 	if (ft_atoi(av[1]) > 200)
 	{
-		printf("Nop on a dit pas plus de 200 philosophers ! (Meme si ca fonctionne avec plus ^^)\n");
+		printf("Nop on a dit pas plus de 200 philosophers !\n");
 		exit(0);
 	}
 }
@@ -50,6 +50,11 @@ void	ft_parsing_1(int ac, char **av)
 				exit(0);
 			}
 			j++;
+			if (j > 4)
+			{
+				printf("ERROR in arg %s, it is too long\n", av[i]);
+				exit(0);
+			}
 		}
 		i++;
 		ac--;
@@ -113,14 +118,13 @@ void	ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv)
 		ft_init_argv(&philo[i], argv);
 		philo[i].start = ft_timestamp();
 		philo[i].last_meal = ft_timestamp();
-		// printf("philo[%d].last_meal = %lld\n", i, philos[i].last_meal);
 		philo[i].print_mutex = malloc(sizeof(pthread_mutex_t));
-        philo[i].eat_mutex = malloc(sizeof(pthread_mutex_t));
+        philo[i].finish_eat_mutex = malloc(sizeof(pthread_mutex_t));
 		philo[i].dead_mutex = &philo->dead_mutex_flag;
-		if (!philo[i].print_mutex || !philo[i].eat_mutex)
+		if (!philo[i].print_mutex || !philo[i].finish_eat_mutex)
 			ft_clear("Malloc error", philo, forks);
         pthread_mutex_init(philo[i].print_mutex, NULL);
-        pthread_mutex_init(philo[i].eat_mutex, NULL);
+        pthread_mutex_init(philo[i].finish_eat_mutex, NULL);
 		philo[i].dead = &philo->dead_flag;
 		philo[i].left_fork = &forks[i];
 		if (i == 0)
@@ -145,7 +149,7 @@ void	*philo_routine(void *arg)
 			print_message("has taken a fork", philo, philo->id);
 			if (philo->num_of_philos == 1)
 			{
-				ft_usleep(philo->time_to_die);
+				usleep(philo->time_to_die * 1000);
 				pthread_mutex_unlock(philo->left_fork);
 				return (arg);
 			}
@@ -154,11 +158,12 @@ void	*philo_routine(void *arg)
 		}
 		else if (philo->id % 2 == 1)
 		{
+			usleep(500);
 			pthread_mutex_lock(philo->right_fork);
 			print_message("has taken a fork", philo, philo->id);
 			if (philo->num_of_philos == 1)
 			{
-				ft_usleep(philo->time_to_die);
+				usleep(philo->time_to_die * 1000);
 				pthread_mutex_unlock(philo->right_fork);
 				return (arg);
 			}
@@ -167,20 +172,21 @@ void	*philo_routine(void *arg)
 		}
 		philo->eating = yes;
 		print_message("is eating", philo, philo->id);
-		pthread_mutex_lock(philo->eat_mutex);
+		pthread_mutex_lock(philo->finish_eat_mutex);
 		philo->last_meal = ft_timestamp();
 		philo->nb_meals_eat++;
-		pthread_mutex_unlock(philo->eat_mutex);
+		pthread_mutex_unlock(philo->finish_eat_mutex);
+		usleep(philo->time_to_eat * 1000);
+		philo->eating = no;
 		// printf("philo[%d].last_meal = %lld\n", philo->id, philo->last_meal);
 		// printf("philo[%d].nb_meals_eat = %d\n", philo->id, philo->nb_meals_eat);
-		ft_usleep(philo->time_to_eat);
-		philo->eating = no;
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
+		printf("OK je suis le philo %d\n\n", philo->id);
 		print_message("is sleeping", philo, philo->id);
-		ft_usleep(philo->time_to_sleep);
+		usleep(philo->time_to_sleep * 1000);
 		print_message("is thinking", philo, philo->id);
-		ft_usleep((philo->time_to_die - philo->time_to_eat - philo->time_to_sleep) / 2);
+		usleep(((philo->time_to_die - philo->time_to_eat - philo->time_to_sleep) / 2) * 1000);
 		// if (
 		// 	philo->num_times_to_eat != -1
 		// 	&& philo->nb_meals_eat >= philo->num_times_to_eat
@@ -195,13 +201,13 @@ void	*philo_routine(void *arg)
 
 int	philosopher_dead(t_philo *philo, long long time_to_die)
 {
-	pthread_mutex_lock(philo->eat_mutex);
+	pthread_mutex_lock(philo->finish_eat_mutex);
 	if ((ft_timestamp() - philo->last_meal) >= time_to_die && philo->eating == no)
 	{
-		pthread_mutex_unlock(philo->eat_mutex);
+		pthread_mutex_unlock(philo->finish_eat_mutex);
 		return (1);
 	}
-	pthread_mutex_unlock(philo->eat_mutex);
+	pthread_mutex_unlock(philo->finish_eat_mutex);
 	return (0);
 }
 
@@ -235,10 +241,10 @@ void	*brain_routine(void *arg)
 			continue;
 		while (i < philo->num_of_philos)
 		{
-			pthread_mutex_lock(philo[i].eat_mutex);
-			if (philo[i].nb_meals_eat >= philo[i].num_times_to_eat)
+			pthread_mutex_lock(philo[i].finish_eat_mutex);
+			if (philo[i].nb_meals_eat == philo[i].num_times_to_eat)
 				finished_eating++;
-			pthread_mutex_unlock(philo[i].eat_mutex);
+			pthread_mutex_unlock(philo[i].finish_eat_mutex);
 			i++;
 		}
 		if (finished_eating == philo->num_of_philos)
@@ -256,7 +262,7 @@ int main(int ac, char **av)
 {
 	t_philo			*philo;
 	pthread_mutex_t	*forks;
-	pthread_t	manager_thread;
+	pthread_t	brain_thread;
 	int	i;
 	
 	ft_parsing_1(ac, av);
@@ -275,7 +281,7 @@ int main(int ac, char **av)
 	pthread_mutex_init(&philo->dead_mutex_flag, NULL);
 	ft_init_philos(philo, forks, av);
 
-	if (pthread_create(&manager_thread, NULL, &brain_routine, philo) != 0)
+	if (pthread_create(&brain_thread, NULL, &brain_routine, philo) != 0)
 		ft_clear("Thread creation error", philo, forks);
 	i = 0;
 	while (i < philo->num_of_philos)
@@ -285,10 +291,11 @@ int main(int ac, char **av)
 		i++;
 	}
 	i = 0;
-	if (pthread_join(manager_thread, NULL) != 0)
+	if (pthread_join(brain_thread, NULL) != 0)
 		ft_clear("Thread join error", philo, forks);
 	while (i < philo->num_of_philos)
 	{
+		printf("je suis le philo %d\n\n", philo[i].id);
 		if (pthread_join(philo[i].thread, NULL) != 0)
 			ft_clear("Thread join error", philo, forks);
 		i++;
@@ -298,10 +305,10 @@ int main(int ac, char **av)
 	while (i < philo->num_of_philos)
 	{
         pthread_mutex_destroy(philo[i].print_mutex);
-        pthread_mutex_destroy(philo[i].eat_mutex);
+        pthread_mutex_destroy(philo[i].finish_eat_mutex);
 		pthread_mutex_destroy(&forks[i]);
         free(philo[i].print_mutex);
-        free(philo[i].eat_mutex);
+        free(philo[i].finish_eat_mutex);
         i++;
     }
 	free(philo);

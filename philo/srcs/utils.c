@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/11 13:40:02 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/16 15:32:09 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/17 17:44:09 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,25 +65,13 @@ void	ft_clear(char *str, t_philo *philo, pthread_mutex_t *forks)
 	{
 		pthread_mutex_destroy(philo[i].print_mutex);
         pthread_mutex_destroy(philo[i].dead_mutex);
-        pthread_mutex_destroy(philo[i].eat_mutex);
+        pthread_mutex_destroy(philo[i].finish_eat_mutex);
         free(philo[i].print_mutex);
-        free(philo[i].eat_mutex);
+        free(philo[i].finish_eat_mutex);
 		pthread_mutex_destroy(&forks[i]);
 		i++;
 	}
 	exit(1);
-}
-
-// Improved version of sleep function
-
-int	ft_usleep(long long milliseconds)
-{
-	long long	start;
-
-	start = ft_timestamp();
-	while ((ft_timestamp() - start) < milliseconds)
-		usleep(500);
-	return (0);
 }
 
 // Gets the current time in milliseconds

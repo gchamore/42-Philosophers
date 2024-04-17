@@ -33,7 +33,7 @@ typedef struct s_philo
 	int				num_times_to_eat;
 	pthread_mutex_t	dead_mutex_flag;
 	pthread_mutex_t	*dead_mutex;
-	pthread_mutex_t	*eat_mutex;
+	pthread_mutex_t	*finish_eat_mutex;
 	pthread_mutex_t	*print_mutex;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
@@ -47,7 +47,7 @@ typedef struct s_philo
 
 // Utils
 void		ft_clear(char *str, t_philo *philo, pthread_mutex_t *forks);
-int			ft_usleep(long long milliseconds);
+// int			ft_usleep(long long milliseconds);
 long long		ft_timestamp(void);
 
 
