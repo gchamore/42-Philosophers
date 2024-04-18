@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philosophers.h                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/18 12:13:13 by gchamore          #+#    #+#             */
+/*   Updated: 2024/04/18 13:22:04 by gchamore         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILOSOPHERS_H
 # define PHILOSOPHERS_H
 
@@ -14,7 +26,6 @@
 # include <pthread.h>
 # include <sys/time.h>
 # include <limits.h>
-
 
 typedef enum e_booleen
 {
@@ -45,10 +56,46 @@ typedef struct s_philo
 	long long		time_to_sleep;
 }					t_philo;
 
-// Utils
-void		ft_clear(char *str, t_philo *philo, pthread_mutex_t *forks);
-// int			ft_usleep(long long milliseconds);
-long long		ft_timestamp(void);
+// MAIN
 
+int			main(int ac, char **av);
+
+// PARSING
+
+void		ft_parsing_1(int ac, char **av);
+void		ft_parsing_2(char **av);
+
+// INIT
+
+void		ft_init_argv(t_philo *philo, char **argv);
+void		ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv);
+void		ft_thread_creator(t_philo *philo, pthread_t *brain_thread, \
+pthread_mutex_t *forks);
+void		ft_thread_joined(t_philo *philo, pthread_t brain_thread, \
+pthread_mutex_t *forks);
+void		ft_end(t_philo *philo, pthread_mutex_t *forks);
+
+// PHILO'S LIFE
+
+void		*philo_routine(void *arg);
+int			ft_even(t_philo *philo);
+int			ft_odd(t_philo *philo);
+void		ft_eat(t_philo *philo);
+int			someone_is_dead(t_philo *philo);
+
+// BRAIN LIFE
+
+void		*brain_routine(void *arg);
+int			brain_dead_checker(t_philo *philo);
+int			philosopher_dead(t_philo *philo, long long time_to_die);
+int			brain_finish_eating_checker(t_philo *philo);
+
+// UTILS
+
+void		print_message(char *str, t_philo *philo, int id);
+long long	time_diff(long long present, long long past);
+long long	ft_timestamp(void);
+void		ft_usleep(long long milliseconds);
+void		ft_error(char *str, t_philo *philo, pthread_mutex_t *forks);
 
 #endif
