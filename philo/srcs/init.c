@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:54:18 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/18 13:20:58 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/19 16:07:24 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,9 @@ void	ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv)
 		philo[i].last_meal = ft_timestamp();
 		philo[i].print_mutex = malloc(sizeof(pthread_mutex_t));
 		philo[i].finish_eat_mutex = malloc(sizeof(pthread_mutex_t));
-		philo[i].dead_mutex = &philo->dead_mutex_flag;
 		if (!philo[i].print_mutex || !philo[i].finish_eat_mutex)
 			ft_error("Malloc error", philo, forks);
+		philo[i].dead_mutex = &philo->dead_mutex_flag;
 		pthread_mutex_init(philo[i].print_mutex, NULL);
 		pthread_mutex_init(philo[i].finish_eat_mutex, NULL);
 		philo[i].dead = &philo->dead_flag;
@@ -59,58 +59,31 @@ void	ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv)
 
 // THREADS CREATION (PHILO AND BRAIN)
 
-void	ft_thread_creator(t_philo *philo, pthread_t *brain_thread, \
-pthread_mutex_t *forks)
+void	ft_thread_creator(t_philo *philo, pthread_t *brain_thread)
 {
 	int	i;
 
 	i = 0;
+	pthread_create(brain_thread, NULL, &brain_routine, philo);
 	while (i < philo->num_of_philos)
 	{
-		if (pthread_create(&philo[i].thread, NULL, &philo_routine, \
-		&philo[i]) != 0)
-			ft_error("Thread creation error", philo, forks);
+		philo[i].thread = malloc(sizeof(pthread_t));
+		pthread_create(philo[i].thread, NULL, &philo_routine, &philo[i]);
 		i++;
 	}
-	if (pthread_create(brain_thread, NULL, &brain_routine, philo) != 0)
-		ft_error("Thread creation error", philo, forks);
 }
 
 // JOIN THREADS (PHILO AND BRAIN)
 
-void	ft_thread_joined(t_philo *philo, pthread_t brain_thread, \
-pthread_mutex_t *forks)
+void	ft_thread_joined(t_philo *philo, pthread_t *brain_thread)
 {
 	int	i;
 
 	i = 0;
-	if (pthread_join(brain_thread, NULL) != 0)
-		ft_error("Thread join error", philo, forks);
+	pthread_join(*brain_thread, NULL);
 	while (i < philo->num_of_philos)
 	{
-		if (pthread_join(philo[i].thread, NULL) != 0)
-			ft_error("Thread join error", philo, forks);
+		pthread_join(*philo[i].thread, NULL);
 		i++;
 	}
-}
-
-// END (FREE AND DESTROY)
-
-void	ft_end(t_philo *philo, pthread_mutex_t *forks)
-{
-	int	i;
-
-	i = 0;
-	pthread_mutex_destroy(&philo->dead_mutex_flag);
-	while (i < philo->num_of_philos)
-	{
-		pthread_mutex_destroy(philo[i].print_mutex);
-		pthread_mutex_destroy(philo[i].finish_eat_mutex);
-		pthread_mutex_destroy(&forks[i]);
-		free(philo[i].print_mutex);
-		free(philo[i].finish_eat_mutex);
-		i++;
-	}
-	free(philo);
-	free(forks);
 }

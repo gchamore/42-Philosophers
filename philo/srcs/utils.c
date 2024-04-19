@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/11 13:40:02 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/18 13:09:54 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/19 14:53:04 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,10 +69,18 @@ void	ft_error(char *str, t_philo *philo, pthread_mutex_t *forks)
 		pthread_mutex_destroy(philo[i].print_mutex);
 		pthread_mutex_destroy(philo[i].dead_mutex);
 		pthread_mutex_destroy(philo[i].finish_eat_mutex);
-		free(philo[i].print_mutex);
-		free(philo[i].finish_eat_mutex);
+		if (philo[i].print_mutex)
+			free(philo[i].print_mutex);
+		if (philo[i].finish_eat_mutex)
+			free(philo[i].finish_eat_mutex);
 		pthread_mutex_destroy(&forks[i]);
+		if (philo[i].thread)
+			free(philo[i].thread);
 		i++;
 	}
+	if (philo)
+		free(philo);
+	if (forks)
+		free(forks);
 	exit(1);
 }

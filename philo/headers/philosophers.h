@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:13:13 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/18 13:22:04 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/19 16:03:10 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,11 @@
 # define PHILOSOPHERS_H
 
 # include "libft.h"
-# include <unistd.h>
-# include <stdio.h>
-# include <sys/types.h>
-# include <sys/wait.h>
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <fcntl.h>
-# include <stdlib.h>
-# include <stdbool.h>
 # include <pthread.h>
+# include <stdlib.h>
+# include <stdio.h>
+# include <unistd.h>
+# include <stdbool.h>
 # include <sys/time.h>
 # include <limits.h>
 
@@ -48,7 +43,7 @@ typedef struct s_philo
 	pthread_mutex_t	*print_mutex;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
-	pthread_t		thread;
+	pthread_t		*thread;
 	long long		last_meal;
 	long long		start;
 	long long		time_to_die;
@@ -59,6 +54,7 @@ typedef struct s_philo
 // MAIN
 
 int			main(int ac, char **av);
+void		ft_end(t_philo *philo, pthread_mutex_t *forks);
 
 // PARSING
 
@@ -69,11 +65,10 @@ void		ft_parsing_2(char **av);
 
 void		ft_init_argv(t_philo *philo, char **argv);
 void		ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv);
-void		ft_thread_creator(t_philo *philo, pthread_t *brain_thread, \
-pthread_mutex_t *forks);
-void		ft_thread_joined(t_philo *philo, pthread_t brain_thread, \
-pthread_mutex_t *forks);
-void		ft_end(t_philo *philo, pthread_mutex_t *forks);
+void		ft_thread_creator(t_philo *philo, \
+pthread_t *brain_thread);
+void		ft_thread_joined(t_philo *philo, pthread_t *brain_thread);
+
 
 // PHILO'S LIFE
 
