@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:54:14 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/22 10:52:08 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 14:05:53 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ int	brain_dead_checker(t_philo *philo)
 	i = 0;
 	while (i < philo->num_of_philos)
 	{
-		usleep(1000);
 		if (philosopher_dead(&philo[i], philo[i].time_to_die) == 1)
 		{
 			print_message("died", &philo[i], philo[i].id);

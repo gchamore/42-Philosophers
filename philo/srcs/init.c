@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:54:18 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/22 10:46:34 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 14:48:17 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,22 @@ void	ft_init_argv(t_philo *philo, char **argv)
 		philo->num_times_to_eat = -1;
 }
 
+void	ft_init_forks(pthread_mutex_t *forks, char **argv)
+{
+	int	i;
+
+	i = 0;
+	while (i < ft_atoi(argv[1]))
+	{
+		pthread_mutex_init(&forks[i], NULL);
+		i++;
+	}
+}	
+
 // INIT PHILOS
 
-void	ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv)
+int	ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv, \
+pthread_mutex_t *print)
 {
 	int	i;
 
@@ -41,12 +54,11 @@ void	ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv)
 		ft_init_argv(&philo[i], argv);
 		philo[i].start = ft_timestamp();
 		philo[i].last_meal = ft_timestamp();
-		philo[i].print_mutex = malloc(sizeof(pthread_mutex_t));
 		philo[i].finish_eat_mutex = malloc(sizeof(pthread_mutex_t));
-		if (!philo[i].print_mutex || !philo[i].finish_eat_mutex)
-			ft_stop(philo, forks);
+		if (!philo[i].finish_eat_mutex)
+			return (ft_stop(philo, forks), 1);
 		philo[i].dead_mutex = &philo->dead_mutex_flag;
-		pthread_mutex_init(philo[i].print_mutex, NULL);
+		philo[i].print_mutex = print;
 		pthread_mutex_init(philo[i].finish_eat_mutex, NULL);
 		philo[i].dead = &philo->dead_flag;
 		philo[i].left_fork = &forks[i];
@@ -55,34 +67,42 @@ void	ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv)
 		else
 			philo[i].right_fork = &forks[i - 1];
 	}
+	return (0);
 }
 
 // THREADS CREATION (PHILO AND BRAIN)
 
-void	ft_thread_creator(t_philo *philo, pthread_t *brain_thread)
+int	ft_thread_creator(t_philo *philo, pthread_t *brain_thread)
 {
 	int	i;
 
 	i = 0;
-	pthread_create(brain_thread, NULL, &brain_routine, philo);
+	if (pthread_create(brain_thread, NULL, &brain_routine, philo) != 0)
+		return (1);
 	while (i < philo->num_of_philos)
 	{
-		pthread_create(&philo[i].thread, NULL, &philo_routine, &philo[i]);
+		if (pthread_create(&philo[i].thread, NULL, &philo_routine, \
+		&philo[i]) != 0)
+			return (1);
 		i++;
 	}
+	return (0);
 }
 
 // JOIN THREADS (PHILO AND BRAIN)
 
-void	ft_thread_joined(t_philo *philo, pthread_t *brain_thread)
+int	ft_thread_joined(t_philo *philo, pthread_t *brain_thread)
 {
 	int	i;
 
 	i = 0;
-	pthread_join(*brain_thread, NULL);
+	if (pthread_join(*brain_thread, NULL) != 0)
+		return (1);
 	while (i < philo->num_of_philos)
 	{
-		pthread_join(philo[i].thread, NULL);
+		if (pthread_join(philo[i].thread, NULL) != 0)
+			return (1);
 		i++;
 	}
+	return (0);
 }

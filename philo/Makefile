@@ -6,7 +6,7 @@
 #    By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/25 16:57:21 by gchamore          #+#    #+#              #
-#    Updated: 2024/04/18 13:18:54 by gchamore         ###   ########.fr        #
+#    Updated: 2024/04/22 14:54:49 by gchamore         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ NAME = philo
 CC = cc
 
 CFLAGS = -Werror -Wall -Wextra -g3 -D_REENTRANT -I./headers/
-
+# -fsanitize=thread
 RM = rm -rf
 
 SRCS = 	$(addprefix srcs/, main.c parsing.c init.c philo_life.c brain_life.c utils.c)
@@ -29,19 +29,16 @@ DEPS = $(OBJS:.o=.d)
 all : first_header $(NAME) second_header
 
 $(NAME) : $(OBJS)
-	$(MAKE) -sC ./libft
-	$(CC) $(CFLAGS) -o $@ $^ libft/libft.a
+	$(CC) $(CFLAGS) -o $@ $^
 
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(@D)
 	$(CC)  $(CFLAGS) -MMD -c -o $@ $<
 
 clean:
-	$(MAKE) clean -C ./libft
 	$(RM) $(OBJS) $(DEPS) $(OBJ_DIR)
 
 fclean: clean
-	$(MAKE) fclean -C ./libft
 	$(RM) $(NAME)
 
 re : fclean all

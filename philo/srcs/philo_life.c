@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:54:05 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/18 15:16:23 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 14:07:24 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,7 @@ void	*philo_routine(void *arg)
 		print_message("is sleeping", philo, philo->id);
 		ft_usleep(philo->time_to_sleep);
 		print_message("is thinking", philo, philo->id);
-		ft_usleep(((philo->time_to_die - philo->time_to_eat - \
-		philo->time_to_sleep) / 2) - 1);
+		usleep(50);
 	}
 	return (arg);
 }

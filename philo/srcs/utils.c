@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/11 13:40:02 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/22 10:37:31 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 14:50:52 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,36 +51,29 @@ void	ft_usleep(long long milliseconds)
 	usleep(milliseconds);
 }
 
-// // ERROR (DESTROY MUTEXES AND FREE MEM)
+int	ft_atoi(const char *str)
+{
+	int	i;
+	int	total;
+	int	signe;
 
-// void	ft_error(char *str, t_philo *philo, pthread_mutex_t *forks)
-// {
-// 	int	i;
-
-// 	i = 0;
-// 	if (str)
-// 	{
-// 		write(2, str, ft_strlen(str));
-// 		write(2, "\n", 1);
-// 	}
-// 	pthread_mutex_destroy(&philo->dead_mutex_flag);
-// 	while (i < philo->num_of_philos)
-// 	{
-// 		pthread_mutex_destroy(philo[i].print_mutex);
-// 		pthread_mutex_destroy(philo[i].dead_mutex);
-// 		pthread_mutex_destroy(philo[i].finish_eat_mutex);
-// 		if (philo[i].print_mutex)
-// 			free(philo[i].print_mutex);
-// 		if (philo[i].finish_eat_mutex)
-// 			free(philo[i].finish_eat_mutex);
-// 		pthread_mutex_destroy(&forks[i]);
-// 		if (philo[i].thread)
-// 			free(philo[i].thread);
-// 		i++;
-// 	}
-// 	if (philo)
-// 		free(philo);
-// 	if (forks)
-// 		free(forks);
-// 	exit(1);
-// }
+	total = 0;
+	i = 0;
+	signe = 1;
+	while ((str[i] >= 9 && str[i] <= 13) || str[i] == 32)
+		i++;
+	if (str[i] == '-' || str[i] == '+')
+	{
+		if (str[i] == '-')
+		{
+			signe = signe * (-1);
+		}
+		i++;
+	}
+	while (str[i] >= '0' && str[i] <= '9')
+	{
+		total = total * 10 + (str[i] - '0');
+		i++;
+	}
+	return (total * signe);
+}

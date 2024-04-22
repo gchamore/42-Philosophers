@@ -6,14 +6,13 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:13:13 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/22 10:49:10 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 14:52:27 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILOSOPHERS_H
 # define PHILOSOPHERS_H
 
-# include "libft.h"
 # include <pthread.h>
 # include <stdlib.h>
 # include <stdio.h>
@@ -64,11 +63,12 @@ void		ft_parsing_2(char **av);
 // INIT
 
 void		ft_init_argv(t_philo *philo, char **argv);
-void		ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv);
-void		ft_thread_creator(t_philo *philo, \
+void		ft_init_forks(pthread_mutex_t *forks, char **argv);
+int			ft_init_philos(t_philo *philo, pthread_mutex_t \
+*forks, char **argv, pthread_mutex_t *print);
+int			ft_thread_creator(t_philo *philo, \
 pthread_t *brain_thread);
-void		ft_thread_joined(t_philo *philo, pthread_t *brain_thread);
-
+int			ft_thread_joined(t_philo *philo, pthread_t *brain_thread);
 
 // PHILO'S LIFE
 
@@ -91,5 +91,6 @@ void		print_message(char *str, t_philo *philo, int id);
 long long	time_diff(long long present, long long past);
 long long	ft_timestamp(void);
 void		ft_usleep(long long milliseconds);
+int			ft_atoi(const char *str);
 
 #endif
