@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 10:19:18 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/19 16:08:18 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 10:50:52 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,13 +97,13 @@ int	main(int ac, char **av)
 	ft_init_philos(philo, forks, av);
 	ft_thread_creator(philo, &brain_thread);
 	ft_thread_joined(philo, &brain_thread);
-	ft_end(philo, forks);
+	ft_stop(philo, forks);
 	return (0);
 }
 
 // END (FREE AND DESTROY)
 
-void	ft_end(t_philo *philo, pthread_mutex_t *forks)
+void	ft_stop(t_philo *philo, pthread_mutex_t *forks)
 {
 	int	i;
 
@@ -112,20 +112,18 @@ void	ft_end(t_philo *philo, pthread_mutex_t *forks)
 	while (i < philo->num_of_philos)
 	{
 		if (philo[i].print_mutex)
-        {
-            pthread_mutex_destroy(philo[i].print_mutex);
-            free(philo[i].print_mutex);
-            philo[i].print_mutex = NULL;
-        }
-        if (philo[i].finish_eat_mutex)
-        {
-            pthread_mutex_destroy(philo[i].finish_eat_mutex);
+		{
+			pthread_mutex_destroy(philo[i].print_mutex);
+			free(philo[i].print_mutex);
+			philo[i].print_mutex = NULL;
+		}
+		if (philo[i].finish_eat_mutex)
+		{
+			pthread_mutex_destroy(philo[i].finish_eat_mutex);
             free(philo[i].finish_eat_mutex);
             philo[i].finish_eat_mutex = NULL;
-        }
-        pthread_mutex_destroy(&forks[i]);
-		if (philo[i].thread)
-			free(philo[i].thread);
+		}
+		pthread_mutex_destroy(&forks[i]);
 		i++;
 	}
 	if (philo)

@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/11 13:40:02 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/19 14:53:04 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 10:37:31 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,36 +51,36 @@ void	ft_usleep(long long milliseconds)
 	usleep(milliseconds);
 }
 
-// ERROR (DESTROY MUTEXES AND FREE MEM)
+// // ERROR (DESTROY MUTEXES AND FREE MEM)
 
-void	ft_error(char *str, t_philo *philo, pthread_mutex_t *forks)
-{
-	int	i;
+// void	ft_error(char *str, t_philo *philo, pthread_mutex_t *forks)
+// {
+// 	int	i;
 
-	i = 0;
-	if (str)
-	{
-		write(2, str, ft_strlen(str));
-		write(2, "\n", 1);
-	}
-	pthread_mutex_destroy(&philo->dead_mutex_flag);
-	while (i < philo->num_of_philos)
-	{
-		pthread_mutex_destroy(philo[i].print_mutex);
-		pthread_mutex_destroy(philo[i].dead_mutex);
-		pthread_mutex_destroy(philo[i].finish_eat_mutex);
-		if (philo[i].print_mutex)
-			free(philo[i].print_mutex);
-		if (philo[i].finish_eat_mutex)
-			free(philo[i].finish_eat_mutex);
-		pthread_mutex_destroy(&forks[i]);
-		if (philo[i].thread)
-			free(philo[i].thread);
-		i++;
-	}
-	if (philo)
-		free(philo);
-	if (forks)
-		free(forks);
-	exit(1);
-}
+// 	i = 0;
+// 	if (str)
+// 	{
+// 		write(2, str, ft_strlen(str));
+// 		write(2, "\n", 1);
+// 	}
+// 	pthread_mutex_destroy(&philo->dead_mutex_flag);
+// 	while (i < philo->num_of_philos)
+// 	{
+// 		pthread_mutex_destroy(philo[i].print_mutex);
+// 		pthread_mutex_destroy(philo[i].dead_mutex);
+// 		pthread_mutex_destroy(philo[i].finish_eat_mutex);
+// 		if (philo[i].print_mutex)
+// 			free(philo[i].print_mutex);
+// 		if (philo[i].finish_eat_mutex)
+// 			free(philo[i].finish_eat_mutex);
+// 		pthread_mutex_destroy(&forks[i]);
+// 		if (philo[i].thread)
+// 			free(philo[i].thread);
+// 		i++;
+// 	}
+// 	if (philo)
+// 		free(philo);
+// 	if (forks)
+// 		free(forks);
+// 	exit(1);
+// }

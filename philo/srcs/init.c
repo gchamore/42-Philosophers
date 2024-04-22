@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:54:18 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/19 16:07:24 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 10:46:34 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void	ft_init_philos(t_philo *philo, pthread_mutex_t *forks, char **argv)
 		philo[i].print_mutex = malloc(sizeof(pthread_mutex_t));
 		philo[i].finish_eat_mutex = malloc(sizeof(pthread_mutex_t));
 		if (!philo[i].print_mutex || !philo[i].finish_eat_mutex)
-			ft_error("Malloc error", philo, forks);
+			ft_stop(philo, forks);
 		philo[i].dead_mutex = &philo->dead_mutex_flag;
 		pthread_mutex_init(philo[i].print_mutex, NULL);
 		pthread_mutex_init(philo[i].finish_eat_mutex, NULL);
@@ -67,8 +67,7 @@ void	ft_thread_creator(t_philo *philo, pthread_t *brain_thread)
 	pthread_create(brain_thread, NULL, &brain_routine, philo);
 	while (i < philo->num_of_philos)
 	{
-		philo[i].thread = malloc(sizeof(pthread_t));
-		pthread_create(philo[i].thread, NULL, &philo_routine, &philo[i]);
+		pthread_create(&philo[i].thread, NULL, &philo_routine, &philo[i]);
 		i++;
 	}
 }
@@ -83,7 +82,7 @@ void	ft_thread_joined(t_philo *philo, pthread_t *brain_thread)
 	pthread_join(*brain_thread, NULL);
 	while (i < philo->num_of_philos)
 	{
-		pthread_join(*philo[i].thread, NULL);
+		pthread_join(philo[i].thread, NULL);
 		i++;
 	}
 }

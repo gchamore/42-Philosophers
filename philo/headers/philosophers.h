@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:13:13 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/19 16:03:10 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 10:49:10 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ typedef struct s_philo
 	pthread_mutex_t	*print_mutex;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
-	pthread_t		*thread;
+	pthread_t		thread;
 	long long		last_meal;
 	long long		start;
 	long long		time_to_die;
@@ -54,7 +54,7 @@ typedef struct s_philo
 // MAIN
 
 int			main(int ac, char **av);
-void		ft_end(t_philo *philo, pthread_mutex_t *forks);
+void		ft_stop(t_philo *philo, pthread_mutex_t *forks);
 
 // PARSING
 
@@ -91,6 +91,5 @@ void		print_message(char *str, t_philo *philo, int id);
 long long	time_diff(long long present, long long past);
 long long	ft_timestamp(void);
 void		ft_usleep(long long milliseconds);
-void		ft_error(char *str, t_philo *philo, pthread_mutex_t *forks);
 
 #endif
