@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:54:18 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/22 14:48:17 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:10:15 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ void	ft_init_argv(t_philo *philo, char **argv)
 	else
 		philo->num_times_to_eat = -1;
 }
+
+// INIT FORKS
 
 void	ft_init_forks(pthread_mutex_t *forks, char **argv)
 {
@@ -81,9 +83,7 @@ int	ft_thread_creator(t_philo *philo, pthread_t *brain_thread)
 		return (1);
 	while (i < philo->num_of_philos)
 	{
-		if (pthread_create(&philo[i].thread, NULL, &philo_routine, \
-		&philo[i]) != 0)
-			return (1);
+		pthread_create(&philo[i].thread, NULL, &philo_routine, &philo[i]);
 		i++;
 	}
 	return (0);
@@ -100,8 +100,7 @@ int	ft_thread_joined(t_philo *philo, pthread_t *brain_thread)
 		return (1);
 	while (i < philo->num_of_philos)
 	{
-		if (pthread_join(philo[i].thread, NULL) != 0)
-			return (1);
+		pthread_join(philo[i].thread, NULL);
 		i++;
 	}
 	return (0);

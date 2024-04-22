@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:54:39 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/18 13:47:37 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:14:14 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void	ft_parsing_1(int ac, char **av)
 	j = 0;
 	if (ac != 5 && ac != 6)
 	{
-		printf("ERROR not good amount of arg %d au lieu de 5 ou 6\n", ac);
+		printf("ERROR not good amount of arg %d instead of 5 or 6\n", ac);
 		exit(0);
 	}
 	while (av[i] && (ac - 1) != 0)
@@ -46,7 +46,7 @@ void	ft_parsing_1(int ac, char **av)
 		j = -1;
 		while (av[i][++j])
 		{
-			if (av[i][j] < 48 || av[i][j] > 57 || j > 4)
+			if (av[i][j] < 48 || av[i][j] > 57 || j > 5)
 			{
 				printf("ERROR in arg %s, not valid digit or too long\n", av[i]);
 				exit(0);

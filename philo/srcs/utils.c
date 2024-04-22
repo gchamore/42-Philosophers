@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/11 13:40:02 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/22 14:50:52 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:02:06 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,14 @@
 
 // PRINT A MESSAGE WITH CURRENT TIME + PHILO'S ID + MESSAGE
 
-void	print_message(char *str, t_philo *philo, int id)
+void	print_message(char *message, t_philo *philo, int id)
 {
 	long long	time;
 
 	time = time_diff(ft_timestamp(), philo->start);
 	pthread_mutex_lock(philo->print_mutex);
 	if (someone_is_dead(philo) == no)
-		printf("%lld %d %s\n", time, id, str);
+		printf("%lld %d %s\n", time, id, message);
 	pthread_mutex_unlock(philo->print_mutex);
 }
 
@@ -51,7 +51,7 @@ void	ft_usleep(long long milliseconds)
 	usleep(milliseconds);
 }
 
-int	ft_atoi(const char *str)
+int	ft_atoi(const char *message)
 {
 	int	i;
 	int	total;
@@ -60,19 +60,19 @@ int	ft_atoi(const char *str)
 	total = 0;
 	i = 0;
 	signe = 1;
-	while ((str[i] >= 9 && str[i] <= 13) || str[i] == 32)
+	while ((message[i] >= 9 && message[i] <= 13) || message[i] == 32)
 		i++;
-	if (str[i] == '-' || str[i] == '+')
+	if (message[i] == '-' || message[i] == '+')
 	{
-		if (str[i] == '-')
+		if (message[i] == '-')
 		{
 			signe = signe * (-1);
 		}
 		i++;
 	}
-	while (str[i] >= '0' && str[i] <= '9')
+	while (message[i] >= '0' && message[i] <= '9')
 	{
-		total = total * 10 + (str[i] - '0');
+		total = total * 10 + (message[i] - '0');
 		i++;
 	}
 	return (total * signe);
