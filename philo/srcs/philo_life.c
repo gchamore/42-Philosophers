@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:54:05 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/22 14:07:24 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/24 15:20:45 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,9 +75,9 @@ int	ft_odd(t_philo *philo)
 
 void	ft_eat(t_philo *philo)
 {
+	pthread_mutex_lock(philo->finish_eat_mutex);
 	philo->eating = yes;
 	print_message("is eating", philo, philo->id);
-	pthread_mutex_lock(philo->finish_eat_mutex);
 	philo->last_meal = ft_timestamp();
 	philo->nb_meals_eat++;
 	pthread_mutex_unlock(philo->finish_eat_mutex);

@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 10:19:18 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/22 14:49:43 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/24 15:36:31 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	main(int ac, char **av)
 	if (!forks)
 		return (free(philo), 0);
 	philo->dead_flag = no;
-	ft_init_forks(forks, av);
+	ft_init_forks(philo, forks, av);
 	pthread_mutex_init(&philo->dead_mutex_flag, NULL);
 	pthread_mutex_init(&print, NULL);
 	if (ft_init_philos(philo, forks, av, &print) == 1)

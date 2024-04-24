@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:13:13 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/22 14:52:27 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/24 15:35:47 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ typedef struct s_philo
 	t_booleen		*dead;
 	t_booleen		dead_flag;
 	t_booleen		eating;
+	t_booleen		full;
+	int				i;
 	int				id;
 	int				nb_meals_eat;
 	int				num_of_philos;
@@ -63,7 +65,7 @@ void		ft_parsing_2(char **av);
 // INIT
 
 void		ft_init_argv(t_philo *philo, char **argv);
-void		ft_init_forks(pthread_mutex_t *forks, char **argv);
+void		ft_init_forks(t_philo *philo, pthread_mutex_t *forks, char **argv);
 int			ft_init_philos(t_philo *philo, pthread_mutex_t \
 *forks, char **argv, pthread_mutex_t *print);
 int			ft_thread_creator(t_philo *philo, \
@@ -83,7 +85,7 @@ int			someone_is_dead(t_philo *philo);
 void		*brain_routine(void *arg);
 int			brain_dead_checker(t_philo *philo);
 int			philosopher_dead(t_philo *philo, long long time_to_die);
-int			brain_finish_eating_checker(t_philo *philo);
+int			brain_finish_eating_checker(t_philo *philo, int *finished_eating);
 
 // UTILS
 

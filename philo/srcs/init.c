@@ -6,7 +6,7 @@
 /*   By: gchamore <gchamore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 12:54:18 by gchamore          #+#    #+#             */
-/*   Updated: 2024/04/22 15:10:15 by gchamore         ###   ########.fr       */
+/*   Updated: 2024/04/24 15:38:37 by gchamore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,14 @@ void	ft_init_argv(t_philo *philo, char **argv)
 
 // INIT FORKS
 
-void	ft_init_forks(pthread_mutex_t *forks, char **argv)
+void	ft_init_forks(t_philo *philo, pthread_mutex_t *forks, char **argv)
 {
 	int	i;
 
 	i = 0;
 	while (i < ft_atoi(argv[1]))
 	{
+		philo[i].id = i + 1;
 		pthread_mutex_init(&forks[i], NULL);
 		i++;
 	}
@@ -50,9 +51,9 @@ pthread_mutex_t *print)
 	i = -1;
 	while (++i < ft_atoi(argv[1]))
 	{
-		philo[i].id = i + 1;
 		philo[i].eating = no;
 		philo[i].nb_meals_eat = 0;
+		philo[i].full = no;
 		ft_init_argv(&philo[i], argv);
 		philo[i].start = ft_timestamp();
 		philo[i].last_meal = ft_timestamp();
